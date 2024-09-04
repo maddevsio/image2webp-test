@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #007BFF;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .preview {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        a {
+            display: inline-block;
+            margin-top: 10px;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Upload Image to Convert</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept="image/png, image/jpeg" required />
+        <button type="submit">Convert to WebP</button>
+    </form>
+    <div id="loader" class="loader" style="display: none;"></div>
+    <img id="preview" class="preview" alt="Converted Image" />
+    <a id="downloadLink" href="#" download style="display: none;">Download Image</a>
+</div>
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        const fileInput = document.getElementById('fileInput');
+        formData.append('image', fileInput.files[0]);
+
+        const loader = document.getElementById('loader');
+        const preview = document.getElementById('preview');
+        const downloadLink = document.getElementById('downloadLink');
+
+        loader.style.display = 'block';
+        preview.style.display = 'none';
+        downloadLink.style.display = 'none';
+
+        try {
+            const response = await fetch('/convert', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok.');
+
+            const result = await response.json();
+
+            preview.src = result.imageUrl;
+            preview.style.display = 'block';
+            downloadLink.href = result.downloadUrl;
+            downloadLink.style.display = 'inline';
+        } catch (error) {
+            console.error('Error during conversion:', error);
+        } finally {
+            loader.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>
