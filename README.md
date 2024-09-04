@@ -24,7 +24,7 @@ Node js version 18.x and higher.
 ## How to start
 
 ```
-git clone
+git clone git@github.com:maddevsio/image2webp-test.git
 
 npm install
 
